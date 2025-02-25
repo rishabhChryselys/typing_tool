@@ -102,12 +102,14 @@ def main(model_data):
             # Question 2 - Radio button
             st.header("Q2: Confidence in Prescribing")
             st.markdown("Please select to what extent the HCP is confident in prescribing gene therapy for SMA patients for 1L treatment:")
-            q2_options = ["Extremely Confident", "Slightly Confident", "Not Confident at All"]
+            # q2_options = ["Extremely Confident", "Slightly Confident", "Not Confident at All"]
+            q2_options = ["Select an option", "Extremely Confident", "Slightly Confident", "Not Confident at All"]
             q2_answer = st.radio(
                 "Confidence Level",
                 options=q2_options,
                 horizontal=True,
-                key="q2_radio"
+                key="q2_radio",
+                index= 0
             )
             
             st.markdown("---")
@@ -115,7 +117,8 @@ def main(model_data):
             # Question 3 - Radio button
             st.header("Q3: Institutional Influence")
             st.markdown("Please indicate to what extent this HCP's institution influences their decision to adopt new therapies like Zolgensma:")
-            q3_options = ["Extremely Influential", "Slightly Influential", "Not at all"]
+            # q3_options = ["Extremely Influential", "Slightly Influential", "Not at all"]
+            q3_options = ["Select an option", "Extremely Influential", "Slightly Influential", "Not at all"]
             q3_answer = st.radio(
                 "Influence Level",
                 options=q3_options,
@@ -128,12 +131,14 @@ def main(model_data):
             # Question 4 - Radio button
             st.header("Q4: Satisfaction with Current Standard of Care")
             st.markdown("Please select the extent of satisfaction the HCP has with the current standard of care therapies for SMA:")
-            q4_options = ["Extremely Satisfied", "Neutral", "Dissatisfied"]
+            # q4_options = ["Extremely Satisfied", "Neutral", "Dissatisfied"]
+            q4_options = ["Select an option", "Extremely Satisfied", "Neutral", "Dissatisfied"]
             q4_answer = st.radio(
                 "Satisfaction Level",
                 options=q4_options,
                 horizontal=True,
-                key="q4_radio"
+                key="q4_radio",
+                index= 0
             )
             
             st.markdown("---")
@@ -141,16 +146,24 @@ def main(model_data):
             # Question 5 - Radio button
             st.header("Q5: Key Barriers")
             st.markdown("Please select what are the key barriers for HCPs in prescribing gene therapies:")
-            q5_options = [
-                "Lack of experience prescribing Zolgensma",
-                "Institutional barrier - Lack of GTx capabilities at site",
-                "Lack of MDT support at the institute",
+            # q5_options = [
+            #     "Lack of experience prescribing Zolgensma",
+            #     "Institutional barrier - Lack of GTx capabilities at site",
+            #     "Lack of MDT support at the institute",
+            #     "None of the Above"
+            # ]
+            q5_options = [ 
+                "Select an option", 
+                "Lack of experience prescribing Zolgensma", 
+                "Institutional barrier - Lack of GTx capabilities at site", 
+                "Lack of MDT support at the institute", 
                 "None of the Above"
             ]
             q5_answer = st.radio(
                 "Key Barrier",
                 options=q5_options,
-                key="q5_radio"
+                key="q5_radio",
+                index= 0
             )
             
             st.markdown("---")
@@ -158,26 +171,37 @@ def main(model_data):
             # Question 6 - Radio button
             st.header("Q6: Patient Referral(Optional)")
             st.markdown("Do you expect that you would need to refer your patients to receive treatment with Gene Therapy?")
+            # q6_options = [
+            #     "I do not need to refer my patients", 
+            #     "I may need to refer my patients to a colleague at my institution", 
+            #     "I may need to refer my patients to another institution"
+            # ]
             q6_options = [
-                "I do not need to refer my patients", 
-                "I may need to refer my patients to a colleague at my institution", 
+                "Select an option",
+                "I do not need to refer my patients",
+                "I may need to refer my patients to a colleague at my institution",
                 "I may need to refer my patients to another institution"
             ]
             q6_answer = st.radio(
                 "Referral Needs",
                 options=q6_options,
-                key="q6_radio"
+                key="q6_radio",
+                index= 0
             )
             
             # Submit button with standard styling
             submit_col1, submit_col2, submit_col3 = st.columns([1, 2, 1])
             with submit_col2:
                 submit_button = st.form_submit_button("Submit Survey")
+            
+            
         
+    
+
         # Handle form submission
         if submit_button:
-            if not npi_id or not reps_name:
-                st.error("Please fill in both NPI ID and HCP Name before submitting.")
+            if not npi_id or not reps_name or q2_answer == "Select an option" or q3_answer == "Select an option" or q4_answer == "Select an option" or q5_answer == "Select an option" or q6_answer == "Select an option":
+                st.error("Please select an option for all questions before submitting.")
             else:
                 # Create mixed response array
                 response_array = []
@@ -218,11 +242,16 @@ def main(model_data):
                 }
                 prediction_decoded = encoded_dict[prediction[0]]
                 
+
+
                 # Display the results
                 st.success("Survey submitted successfully!")
-                
+                # reset button
+                    
+
                 st.subheader("Survey Results")
                 # Using markdown to change the font size and color for the result
+                
                 st.markdown(
                         """
                         <strong>Prediction:</strong> The HCP is categorized as a <span style='color: green; font-size: 30px;'>{}</span>
