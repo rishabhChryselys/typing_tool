@@ -1,3 +1,11 @@
+'''
+
+Last Modified: 2025-02-27
+Author: Vishesh
+
+'''
+
+
 import streamlit as st
 import pickle
 import pandas as pd
@@ -19,7 +27,7 @@ def show_welcome_screen():
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
             st.image("https://cdn.capsulcn.com/Content/Images/uploaded/ZOLGENSMA_logo.png", width=200)
-            st.title("Welcome to the Zolgensma HCP Typing Tool")
+            st.title("Welcome to the Gene Therapy HCP Typing Tool")
             
             st.markdown("""
             ### Purpose of this Tool
@@ -51,6 +59,12 @@ def show_welcome_screen():
             st.markdown("</div>", unsafe_allow_html=True)
 
 
+def predict_segment(input_data, model):
+    input_df = pd.DataFrame([input_data])
+    prediction = model.predict(input_df)[0]
+    return prediction
+
+
 def main(model_data):
     # Check if we need to show the welcome screen
     if 'show_welcome' not in st.session_state:
@@ -73,166 +87,137 @@ def main(model_data):
             st.markdown(f"Survey Date: {datetime.now().strftime('%B %d, %Y')}")
         
         # Main content
-        st.title("Zolgensma HCP Typing Tool")
+        st.title("Gene Therapy HCP Typing Tool")
         st.markdown("Please complete the following survey to determine the attitudinal segments for an HCP.")
         
         # Create two columns for the initial inputs
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         with col1:
             npi_id = st.text_input("NPI ID", placeholder="Enter NPI ID")
         with col2:
             reps_name = st.text_input("HCP Name", placeholder="Enter representative's name")
+        with col3:
+            HCP_practicing_site = st.text_input("HCP Practicing Site", placeholder="Enter HCO / Account name")
         
         # Create a form for the survey
         with st.form("survey_form"):
+            input_data = {}
             # Question 1 - Checkboxes
-            st.header("Q1: Primary Rationale for Switching to Gene Therapies")
-            st.markdown("Please select the primary rationale for considering switching to gene therapies  \n (Select all relevent options):")
+            st.header("Q1: For your SMA patients (> 2 years old)")
+            st.markdown("Please select the primary rationale for considering switching to gene therapies  \n (Select all Applicable options):")
+            input_data['Q1_1'] = 0
+            input_data['Q1_2'] = 0
+            input_data['Q1_3'] = 0
+            input_data['Q1_4'] = 0
             
             col1, col2 = st.columns(2)
             with col1:
-                q1_efficacy = st.checkbox("Efficacy", help="Select if efficacy is a primary rationale")
-                q1_safety = st.checkbox("Safety", help="Select if safety is a primary rationale")
+                if st.checkbox("Efficacy", help="Select if efficacy is a primary rationale"): input_data['Q1_1'] = 1
+                if st.checkbox("Safety", help="Select if safety is a primary rationale"): input_data['Q1_2'] = 1
             with col2:
-                q1_moa = st.checkbox("MOA (Mechanism of Action)", help="Select if mechanism of action is a primary rationale")
-                q1_dosing = st.checkbox("Dosing Convenience", help="Select if dosing convenience is a primary rationale")
+                if st.checkbox("MOA (Mechanism of Action)", help="Select if mechanism of action is a primary rationale"): input_data['Q1_3'] = 1
+                if st.checkbox("Dosing Convenience", help="Select if dosing convenience is a primary rationale") : input_data['Q1_4'] = 1
             
             st.markdown("---")
             
             # Question 2 - Radio button
-            st.header("Q2: Confidence in Prescribing")
+            st.header('Q2: Please state your agreement with "Gene therapy should be 1st line treatment for my SMA patient" ')
             st.markdown("Please select to what extent the HCP is confident in prescribing gene therapy for SMA patients for 1L treatment:")
-            # q2_options = ["Extremely Confident", "Slightly Confident", "Not Confident at All"]
-            q2_options = ["Select an option", "Extremely Confident", "Slightly Confident", "Not Confident at All"]
+            
+            input_data['Q2_0'] = 0
+            input_data['Q2_1'] = 0
+            input_data['Q2_2'] = 0
+            q2_options = [" I Agree", "I am Neutral", "I Disagree"]
             q2_answer = st.radio(
-                "Confidence Level",
+                "Agrement Level",
                 options=q2_options,
-                horizontal=True,
                 key="q2_radio",
-                index= 0
+                index= None
             )
+            if q2_answer: input_data[f'Q2_{q2_options.index(q2_answer)}'] = 1
             
             st.markdown("---")
             
             # Question 3 - Radio button
-            st.header("Q3: Institutional Influence")
-            st.markdown("Please indicate to what extent this HCP's institution influences their decision to adopt new therapies like Zolgensma:")
-            # q3_options = ["Extremely Influential", "Slightly Influential", "Not at all"]
-            q3_options = ["Select an option", "Extremely Influential", "Slightly Influential", "Not at all"]
+            st.header("Q3: What is the level of satisfaction you have with the Spinraza and Evrysdi for SMA patients > 2 years old")
+            st.markdown("Please select the extent of satisfaction the HCP has with the current standard of care therapies for SMA:")
+            
+            input_data['Q4_0'] = 0
+            input_data['Q4_1'] = 0
+            input_data['Q4_2'] = 0
+            q3_options = ["Extremely Satisfied", "Neutral", "Dissatisfied"]
             q3_answer = st.radio(
-                "Influence Level",
+                "Satisfaction Level",
                 options=q3_options,
-                horizontal=True,
-                key="q3_radio"
+                key="q3_radio",
+                index = None
             )
+            if q3_answer: input_data[f'Q4_{q3_options.index(q3_answer)}'] = 1
             
             st.markdown("---")
             
             # Question 4 - Radio button
-            st.header("Q4: Satisfaction with Current Standard of Care")
-            st.markdown("Please select the extent of satisfaction the HCP has with the current standard of care therapies for SMA:")
-            # q4_options = ["Extremely Satisfied", "Neutral", "Dissatisfied"]
-            q4_options = ["Select an option", "Extremely Satisfied", "Neutral", "Dissatisfied"]
+            st.header("Q4: What are the key barriers in prescribing gene therapies in SMA")
+            st.markdown("Please select what are the key barriers for HCPs in prescribing gene therapies:")
+            
+            input_data['Q5_0'] = 0
+            input_data['Q5_1'] = 0
+            input_data['Q5_2'] = 0
+            input_data['Q5_3'] = 0
+
+            q4_options = [
+                "Lack of experience prescribing Zolgensma", 
+                "Gene Therapy capabilities at site are not good enough (e.g. Financial Barriers, Pre and Post Monitoring Capabilities, Administration)", 
+                "MDT collaboration needs to be stronger", 
+                "No Barriers / Institution is well equipped to administer Gene theapy"
+            ]
             q4_answer = st.radio(
-                "Satisfaction Level",
+                "Key Barrier",
                 options=q4_options,
-                horizontal=True,
                 key="q4_radio",
-                index= 0
+                index = None
             )
+            if q4_answer: input_data[f'Q5_{q4_options.index(q4_answer)}'] = 1
             
             st.markdown("---")
             
             # Question 5 - Radio button
-            st.header("Q5: Key Barriers")
-            st.markdown("Please select what are the key barriers for HCPs in prescribing gene therapies:")
-            # q5_options = [
-            #     "Lack of experience prescribing Zolgensma",
-            #     "Institutional barrier - Lack of GTx capabilities at site",
-            #     "Lack of MDT support at the institute",
-            #     "None of the Above"
-            # ]
+            st.header("Q5: State your primary role while treating SMA patients with Gene Therapies:")
+            st.markdown("State your primary role while treating SMA patients with Gene Therapies:")
+
+            input_data['Q7_0'] = 0
+            input_data['Q7_1'] = 0
+            input_data['Q7_2'] = 0
+
             q5_options = [ 
-                "Select an option", 
-                "Lack of experience prescribing Zolgensma", 
-                "Institutional barrier - Lack of GTx capabilities at site", 
-                "Lack of MDT support at the institute", 
-                "None of the Above"
+                "I prescribe and administer Gene therapies ", 
+                "I need to refer my patients to a colleague at my institution  ", 
+                "I need to refer my patients to another institution "
             ]
             q5_answer = st.radio(
                 "Key Barrier",
                 options=q5_options,
                 key="q5_radio",
-                index= 0
+                index = None
             )
-            
-            st.markdown("---")
-            
-            # Question 6 - Radio button
-            st.header("Q6: Patient Referral(Optional)")
-            st.markdown("Do you expect that you would need to refer your patients to receive treatment with Gene Therapy?")
-            # q6_options = [
-            #     "I do not need to refer my patients", 
-            #     "I may need to refer my patients to a colleague at my institution", 
-            #     "I may need to refer my patients to another institution"
-            # ]
-            q6_options = [
-                "Select an option",
-                "I do not need to refer my patients",
-                "I may need to refer my patients to a colleague at my institution",
-                "I may need to refer my patients to another institution"
-            ]
-            q6_answer = st.radio(
-                "Referral Needs",
-                options=q6_options,
-                key="q6_radio",
-                index= 0
-            )
-            
+            if q5_answer: input_data[f'Q7_{q5_options.index(q5_answer)}'] = 1
+
             # Submit button with standard styling
-            submit_col1, submit_col2, submit_col3 = st.columns([1, 2, 1])
+            submit_col1, submit_col2 = st.columns([15,5])
             with submit_col2:
                 submit_button = st.form_submit_button("Submit Survey")
-            
-            
-        
-    
+
+
 
         # Handle form submission
         if submit_button:
-            if not npi_id or not reps_name or q2_answer == "Select an option" or q3_answer == "Select an option" or q4_answer == "Select an option" or q5_answer == "Select an option" or q6_answer == "Select an option":
+            if not npi_id or not reps_name or q2_answer == None or q3_answer == None or q4_answer == None or q5_answer == None:
                 st.error("Please select an option for all questions before submitting.")
             else:
-                # Create mixed response array
-                response_array = []
-                response_array.append(q2_answer)  # Q2
-                response_array.append(q4_answer)  # Q4
-                response_array.append(q5_answer)  # Q5
+                # Prepare the input data for prediction
+                segment = predict_segment(input_data, model_data['model'])
 
-                # Q1: Convert checkboxes to binary values (1 if selected, 0 if not)
-                response_array.append(1 if q1_efficacy else 0)
-                response_array.append(1 if q1_safety else 0)
-                response_array.append(1 if q1_moa else 0)
-                response_array.append(1 if q1_dosing else 0)
                 
-                # Add actual text selections for all other questions
-                response_array.append(q3_answer)  # Q3
-                # Q6 is not used in the model but saved in the response file
-                
-                # Load model components
-                loaded_model = model_data['model']
-                loaded_label_encoder = model_data['label_encoder']
-                onehot = model_data['one_hot_encoder']
-
-                # Create a DataFrame from the response array
-                response_df = pd.DataFrame([response_array], columns=model_data['questions'])
-                
-                # Transform the data for prediction
-                response_hot = onehot.transform(response_df).toarray()
-                
-                # Make predictions
-                prediction = loaded_model.predict(response_hot)
-                prediction_score = loaded_model.predict_proba(response_hot)
                 
                 # Decode predictions
                 encoded_dict = {
@@ -240,7 +225,8 @@ def main(model_data):
                     1: 'Risk Balancers',
                     2: 'RWE Seekers'
                 }
-                prediction_decoded = encoded_dict[prediction[0]]
+                prediction_decoded = encoded_dict[segment]
+                prediction_score = model_data['model'].predict_proba(pd.DataFrame([input_data]))
                 
 
 
@@ -293,42 +279,51 @@ def main(model_data):
                     with col2:
                         st.write("**Responses**")
                         selected_q1 = []
-                        if q1_efficacy: selected_q1.append("Efficacy")
-                        if q1_safety: selected_q1.append("Safety")
-                        if q1_moa: selected_q1.append("MOA")
-                        if q1_dosing: selected_q1.append("Dosing Convenience")
-                        st.write(f"**Primary Rationales**: {', '.join(selected_q1) if selected_q1 else 'None selected'}")
-                        st.write(f"**Confidence in Prescribing**: {q2_answer}")
-                        st.write(f"**Institutional Influence**: {q3_answer}")
-                        st.write(f"**Satisfaction with Current Standard of Care**: {q4_answer}")
-                        st.write(f"**Key Barriers**: {q5_answer}")
-                        st.write(f"**Patient Referral**: {q6_answer}")
+                        for key, value in input_data.items():
+                            if key.startswith('Q1') and value == 1:
+                                selected_q1.append("Efficiency" if key == 'Q1_1' else "Safety" if key == 'Q1_2' else "MOA" if key == 'Q1_3' else "Dosing")
+
+                        st.write(f"Q1: {', '.join(selected_q1)}")
+                        st.write(f"Q2: {q2_answer}")
+                        st.write(f"Q3: {q3_answer}")
+                        st.write(f"Q4: {q4_answer}")
+                        st.write(f"Q5: {q5_answer}")
+
                 
                 # Save the response to a CSV file
                 try:
                     # Create response columns dynamically
-                    response_dict = {f'Response_{i+1}': [resp] for i, resp in enumerate(response_array)}
+                    response_dict = {}
+                    for key, value in input_data.items():
+                        if key.startswith('Q1') and value == 1:
+                                response_dict['Q1'] = ["Efficiency" if key == 'Q1_1' else "Safety" if key == 'Q1_2' else "MOA" if key == 'Q1_3' else "Dosing"]
+                    response_dict['Q2'] = q2_answer
+                    response_dict['Q3'] = q3_answer
+                    response_dict['Q4'] = q4_answer
+                    response_dict['Q5'] = q5_answer
+
+
                     
-                    # Add Q6 to the saved data even though it's not used in the model
-                    response_dict['Response_Q6'] = [q6_answer]
 
                     # Construct DataFrame with timestamp
                     df = pd.DataFrame({
                         'Timestamp': [datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
                         'NPI_ID': [npi_id],
                         'Reps_Name': [reps_name],
+                        'HCP_Practicing_Site': [HCP_practicing_site],
                         **response_dict,
                         'Prediction': [prediction_decoded],
-                        'GTx_Champions_Score': [scores["GTx Champions"]],
-                        'Risk_Balancers_Score': [scores["Risk Balancers"]],
-                        'RWE_Seekers_Score': [scores["RWE Seekers"]]
+                        'GTx_Champions_Score': [round(scores["GTx Champions"], 2)],
+                        'Risk_Balancers_Score': [round(scores["Risk Balancers"], 2)],
+                        'RWE_Seekers_Score': [round(scores["RWE Seekers"], 2)]
                     })
-
+                    
                     # Define file path
                     file_path = 'sma_survey_responses.csv'
 
-                    # Check if file exists to write header only once
+                    # Check if file exists
                     write_header = not os.path.exists(file_path)
+
 
                     # Save to CSV
                     df.to_csv(file_path, mode='a', header=write_header, index=False)
@@ -338,7 +333,7 @@ def main(model_data):
         
         # Footer
         st.markdown("---")
-        st.markdown("© SMA HCP Typing Tool | For Authorised Novartis Reps Only")
+        st.markdown("©2025 SMA Gene Therapy HCP Typing Tool | For Authorised Novartis Reps Only")
 
 if __name__ == "__main__":
     try:
