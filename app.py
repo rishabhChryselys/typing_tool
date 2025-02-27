@@ -221,9 +221,9 @@ def main(model_data):
                 
                 # Decode predictions
                 encoded_dict = {
-                    0: 'GTx Champions',
-                    1: 'Risk Balancers',
-                    2: 'RWE Seekers'
+                    1: 'GTx Champions',
+                    2: 'Risk Balancers',
+                    3: 'RWE Seekers'
                 }
                 prediction_decoded = encoded_dict[segment]
                 prediction_score = model_data['model'].predict_proba(pd.DataFrame([input_data]))
