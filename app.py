@@ -1,7 +1,7 @@
 '''
 
-Last Modified: 2025-02-27
-Author: Vishesh
+Last Modified: 2025-02-28
+Author: Satyam, Vishesh, Rishabh
 
 '''
 
@@ -60,7 +60,7 @@ def show_welcome_screen():
 
 
 def predict_segment(input_data, model):
-    input_df = pd.DataFrame([input_data])
+    input_df = pd.DataFrame(input_data)
     prediction = model.predict(input_df)[0]
     return prediction
 
@@ -105,18 +105,18 @@ def main(model_data):
             # Question 1 - Checkboxes
             st.header("Q1: For your SMA patients (> 2 years old)")
             st.markdown("Please select the primary rationale for considering switching to gene therapies  \n (Select all Applicable options):")
-            input_data['Q1_1'] = 0
-            input_data['Q1_2'] = 0
-            input_data['Q1_3'] = 0
-            input_data['Q1_4'] = 0
+            input_data['Q1_1'] = [0]
+            input_data['Q1_2'] = [0]
+            input_data['Q1_3'] = [0]
+            input_data['Q1_4'] = [0]
             
             col1, col2 = st.columns(2)
             with col1:
-                if st.checkbox("Efficacy", help="Select if efficacy is a primary rationale"): input_data['Q1_1'] = 1
-                if st.checkbox("Safety", help="Select if safety is a primary rationale"): input_data['Q1_2'] = 1
+                if st.checkbox("Efficacy", help="Select if efficacy is a primary rationale"): input_data['Q1_1'] = [1]
+                if st.checkbox("Safety", help="Select if safety is a primary rationale"): input_data['Q1_2'] = [1]
             with col2:
-                if st.checkbox("MOA (Mechanism of Action)", help="Select if mechanism of action is a primary rationale"): input_data['Q1_3'] = 1
-                if st.checkbox("Dosing Convenience", help="Select if dosing convenience is a primary rationale") : input_data['Q1_4'] = 1
+                if st.checkbox("MOA (Mechanism of Action)", help="Select if mechanism of action is a primary rationale"): input_data['Q1_3'] = [1]
+                if st.checkbox("Dosing Convenience", help="Select if dosing convenience is a primary rationale") : input_data['Q1_4'] = [1]
             
             st.markdown("---")
             
@@ -124,9 +124,9 @@ def main(model_data):
             st.header('Q2: Please state your agreement with "Gene therapy should be 1st line treatment for my SMA patient" ')
             st.markdown("Please select to what extent the HCP is confident in prescribing gene therapy for SMA patients for 1L treatment:")
             
-            input_data['Q2_0'] = 0
-            input_data['Q2_1'] = 0
-            input_data['Q2_2'] = 0
+            input_data['Q2_0'] = [0]
+            input_data['Q2_1'] = [0]
+            input_data['Q2_2'] = [0]
             q2_options = [" I Agree", "I am Neutral", "I Disagree"]
             q2_answer = st.radio(
                 "Agrement Level",
@@ -134,7 +134,7 @@ def main(model_data):
                 key="q2_radio",
                 index= None
             )
-            if q2_answer: input_data[f'Q2_{q2_options.index(q2_answer)}'] = 1
+            if q2_answer: input_data[f'Q2_{q2_options.index(q2_answer)}'] = [1]
             
             st.markdown("---")
             
@@ -142,9 +142,9 @@ def main(model_data):
             st.header("Q3: What is the level of satisfaction you have with the Spinraza and Evrysdi for SMA patients > 2 years old")
             st.markdown("Please select the extent of satisfaction the HCP has with the current standard of care therapies for SMA:")
             
-            input_data['Q4_0'] = 0
-            input_data['Q4_1'] = 0
-            input_data['Q4_2'] = 0
+            input_data['Q4_0'] = [0]
+            input_data['Q4_1'] = [0]
+            input_data['Q4_2'] = [0]
             q3_options = ["Extremely Satisfied", "Neutral", "Dissatisfied"]
             q3_answer = st.radio(
                 "Satisfaction Level",
@@ -152,7 +152,7 @@ def main(model_data):
                 key="q3_radio",
                 index = None
             )
-            if q3_answer: input_data[f'Q4_{q3_options.index(q3_answer)}'] = 1
+            if q3_answer: input_data[f'Q4_{q3_options.index(q3_answer)}'] = [1]
             
             st.markdown("---")
             
@@ -160,10 +160,10 @@ def main(model_data):
             st.header("Q4: What are the key barriers in prescribing gene therapies in SMA")
             st.markdown("Please select what are the key barriers for HCPs in prescribing gene therapies:")
             
-            input_data['Q5_0'] = 0
-            input_data['Q5_1'] = 0
-            input_data['Q5_2'] = 0
-            input_data['Q5_3'] = 0
+            input_data['Q5_0'] = [0]
+            input_data['Q5_1'] = [0]
+            input_data['Q5_2'] = [0]
+            input_data['Q5_3'] = [0]
 
             q4_options = [
                 "Lack of experience prescribing Zolgensma", 
@@ -177,7 +177,7 @@ def main(model_data):
                 key="q4_radio",
                 index = None
             )
-            if q4_answer: input_data[f'Q5_{q4_options.index(q4_answer)}'] = 1
+            if q4_answer: input_data[f'Q5_{q4_options.index(q4_answer)}'] = [1]
             
             st.markdown("---")
             
@@ -185,9 +185,9 @@ def main(model_data):
             st.header("Q5: State your primary role while treating SMA patients with Gene Therapies:")
             st.markdown("State your primary role while treating SMA patients with Gene Therapies:")
 
-            input_data['Q7_0'] = 0
-            input_data['Q7_1'] = 0
-            input_data['Q7_2'] = 0
+            input_data['Q7_0'] = [0]
+            input_data['Q7_1'] = [0]
+            input_data['Q7_2'] = [0]
 
             q5_options = [ 
                 "I prescribe and administer Gene therapies ", 
@@ -200,7 +200,7 @@ def main(model_data):
                 key="q5_radio",
                 index = None
             )
-            if q5_answer: input_data[f'Q7_{q5_options.index(q5_answer)}'] = 1
+            if q5_answer: input_data[f'Q7_{q5_options.index(q5_answer)}'] = [1]
 
             # Submit button with standard styling
             submit_col1, submit_col2 = st.columns([15,5])
@@ -215,7 +215,7 @@ def main(model_data):
                 st.error("Please select an option for all questions before submitting.")
             else:
                 # Prepare the input data for prediction
-                segment = predict_segment(input_data, model_data['model'])
+                segment = predict_segment(input_data, model_data)
 
                 
                 
@@ -226,7 +226,7 @@ def main(model_data):
                     3: 'RWE Seekers'
                 }
                 prediction_decoded = encoded_dict[segment]
-                prediction_score = model_data['model'].predict_proba(pd.DataFrame([input_data]))
+                prediction_score = model_data.predict_proba(pd.DataFrame(input_data))
                 
 
 
@@ -280,9 +280,16 @@ def main(model_data):
                         st.write("**Responses**")
                         selected_q1 = []
                         for key, value in input_data.items():
-                            if key.startswith('Q1') and value == 1:
-                                selected_q1.append("Efficiency" if key == 'Q1_1' else "Safety" if key == 'Q1_2' else "MOA" if key == 'Q1_3' else "Dosing")
-
+                            print(key,value)
+                            if key == 'Q1_1' and value == [1]:
+                                selected_q1.append("Efficiency")
+                            elif key == 'Q1_2' and value == [1]:
+                                selected_q1.append("Safety")
+                            elif key == 'Q1_3' and value == [1]:
+                                selected_q1.append("MOA")
+                            elif key == 'Q1_4' and value == [1]:
+                                selected_q1.append("Dosing")
+                        print(selected_q1)
                         st.write(f"Q1: {', '.join(selected_q1)}")
                         st.write(f"Q2: {q2_answer}")
                         st.write(f"Q3: {q3_answer}")
@@ -296,7 +303,7 @@ def main(model_data):
                     response_dict = {}
                     for key, value in input_data.items():
                         if key.startswith('Q1') and value == 1:
-                                response_dict['Q1'] = ["Efficiency" if key == 'Q1_1' else "Safety" if key == 'Q1_2' else "MOA" if key == 'Q1_3' else "Dosing"]
+                                response_dict['Q1'] = ["Efficacy" if key == 'Q1_1' else "Safety" if key == 'Q1_2' else "MOA" if key == 'Q1_3' else "Dosing"]
                     response_dict['Q2'] = q2_answer
                     response_dict['Q3'] = q3_answer
                     response_dict['Q4'] = q4_answer
