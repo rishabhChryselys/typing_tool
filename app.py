@@ -91,22 +91,40 @@ def main(model_data):
         st.title("Gene Therapy HCP Typing Tool")
         st.markdown("Please complete the following survey to determine the attitudinal segments for an HCP.")
         
+        hcp_data = {
+            "1336357615": {"first_name": "KERRI", "last_name": "LAROVERE", "account_id": "18796763", "account_site": "BOSTON CHILDRENS HOSPITAL"},
+            "1396119806": {"first_name": "CORY", "last_name": "SIEBURG", "account_id": "19915656", "account_site": "UNIVERSITY OF WISCONSIN HEALTH UNIVERSITY HOSPITAL"},
+            "1457541625": {"first_name": "JEFFREY", "last_name": "BOLTON", "account_id": "18796763", "account_site": "BOSTON CHILDRENS HOSPITAL"},
+            "1720495757": {"first_name": "IRYNA", "last_name": "KALININA", "account_id": "20672686", "account_site": "THE CLEVELAND CLINIC FOUNDATION"},
+            "1649552688": {"first_name": "CHANDRABHAGA", "last_name": "MISKIN", "account_id": "1652054", "account_site": "SAINT PETERS HEALTHCARE SYSTEM"}
+        }
+
         # Create two columns for the initial inputs
         col1, col2, col3 = st.columns(3)
+
         with col1:
-            # NPI 10 digit number
-            npi_id = st.text_input("NPI ID", placeholder="Enter NPI ID", max_chars=10, help="Enter the 10-digit NPI ID")
+            # Enter NPI ID
+            npi_id = st.text_input("NPI ID *", placeholder="Enter NPI ID", max_chars=10, help="Enter the 10-digit NPI ID")
+
+        # Check if NPI exists in our data
+        hcp_info = hcp_data.get(npi_id, {})
+
+        # Auto-fill other fields
         with col2:
-            reps_first_name = st.text_input("HCP First Name", placeholder="Enter representative's fast name")
+            reps_first_name = st.text_input("HCP First Name *", value=hcp_info.get("first_name", ""), placeholder="Enter first name")
         with col3:
-            reps_last_name = st.text_input("HCP Last Name", placeholder="Enter representative's last name")
-        
+            reps_last_name = st.text_input("HCP Last Name", value=hcp_info.get("last_name", ""), placeholder="Enter last name")
+
         col_1, col_2 = st.columns(2)
+
         with col_1:
-            HCP_practicing_id = st.text_input("HCP Practicing ID", placeholder="Enter HCP ID")
+            HCP_account_id = st.text_input("HCP Account ID *", value=hcp_info.get("account_id", ""), placeholder="Enter HCP Account ID")
         with col_2:
-            # drop down for HCP practicing site
-            HCP_practicing_site = st.selectbox("HCP Practicing Site", ["Hospital", "Clinic", "Private Practice", "Other"])
+            HCP_account_site = st.selectbox(
+                "HCP Account Site *", 
+                ["BOSTON CHILDRENS HOSPITAL", "UNIVERSITY OF WISCONSIN HEALTH UNIVERSITY HOSPITAL", "THE CLEVELAND CLINIC FOUNDATION", "SAINT PETERS HEALTHCARE SYSTEM"],
+                index=["BOSTON CHILDRENS HOSPITAL", "UNIVERSITY OF WISCONSIN HEALTH UNIVERSITY HOSPITAL", "THE CLEVELAND CLINIC FOUNDATION", "SAINT PETERS HEALTHCARE SYSTEM"].index(hcp_info.get("account_site", "BOSTON CHILDRENS HOSPITAL")) if hcp_info else 0
+            )
         # Create a form for the survey
         with st.form("survey_form"):
             input_data = {}
@@ -283,8 +301,8 @@ def main(model_data):
                         st.write(f"NPI ID: {npi_id}")
                         st.write(f"HCP First Name: {reps_first_name}")
                         st.write(f"HCP Last Name: {reps_last_name}")
-                        st.write(f"HCP Practicing ID: {HCP_practicing_id}")
-                        st.write(f"HCP Practicing Site: {HCP_practicing_site}")
+                        st.write(f"HCP account ID: {HCP_account_id}")
+                        st.write(f"HCP account Site: {HCP_account_site}")
                         st.write(f"Date: {datetime.now().strftime('%B %d, %Y')}")
                     
                     with col2:
@@ -339,8 +357,8 @@ def main(model_data):
                         'NPI_ID': [npi_id],
                         'Reps_First_Name': [reps_first_name],
                         'Reps_Last_Name': [reps_last_name],
-                        'HCP_Practicing_ID': [HCP_practicing_id],
-                        'HCP_Practicing_Site': [HCP_practicing_site],
+                        'HCP_account_ID': [HCP_account_id],
+                        'HCP_account_Site': [HCP_account_site],
                         **response_dict,
                         'Prediction': [prediction_decoded],
                         'GTx_Champions_Score': [round(scores["GTx Champions"], 2)],
