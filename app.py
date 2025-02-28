@@ -27,7 +27,7 @@ def show_welcome_screen():
     with welcome_container:
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            st.image("https://cdn.capsulcn.com/Content/Images/uploaded/ZOLGENSMA_logo.png", width=200)
+            st.image("Gene Therapy.png", width=300)
             st.title("Welcome to the Gene Therapy HCP Typing Tool")
             
             st.markdown("""
@@ -74,7 +74,7 @@ def main(model_data):
     else:
         # Sidebar for information
         with st.sidebar:
-            st.image("https://cdn.capsulcn.com/Content/Images/uploaded/ZOLGENSMA_logo.png", width=150)
+            st.image("Gene Therapy.png", width=200)
             st.markdown("### About This Survey")
             st.markdown("This tool collects data about gene therapy prescribing practices for SMA patients and provides insights into prescriber categorization.")
             
@@ -94,18 +94,25 @@ def main(model_data):
         # Create two columns for the initial inputs
         col1, col2, col3 = st.columns(3)
         with col1:
-            npi_id = st.text_input("NPI ID", placeholder="Enter NPI ID")
+            # NPI 10 digit number
+            npi_id = st.text_input("NPI ID", placeholder="Enter NPI ID", max_chars=10, help="Enter the 10-digit NPI ID")
         with col2:
-            reps_name = st.text_input("HCP Name", placeholder="Enter representative's name")
+            reps_first_name = st.text_input("HCP First Name", placeholder="Enter representative's fast name")
         with col3:
-            HCP_practicing_site = st.text_input("HCP Practicing Site", placeholder="Enter HCO / Account name")
+            reps_last_name = st.text_input("HCP Last Name", placeholder="Enter representative's last name")
         
+        col_1, col_2 = st.columns(2)
+        with col_1:
+            HCP_practicing_id = st.text_input("HCP Practicing ID", placeholder="Enter HCP ID")
+        with col_2:
+            # drop down for HCP practicing site
+            HCP_practicing_site = st.selectbox("HCP Practicing Site", ["Hospital", "Clinic", "Private Practice", "Other"])
         # Create a form for the survey
         with st.form("survey_form"):
             input_data = {}
             # Question 1 - Checkboxes
-            st.header("Q1: For your SMA patients (> 2 years old)")
-            st.markdown("Please select the primary rationale for considering switching to gene therapies  \n (Select all Applicable options):")
+            st.header("Q1: Treatment Drivers")
+            st.markdown("For your SMA patients (> 2 years old), Please select the primary rationale considered for switching to gene therapies from existing therapies  \n (Select all Applicable options):")
             input_data['Q1_1'] = [0]
             input_data['Q1_2'] = [0]
             input_data['Q1_3'] = [0]
@@ -122,8 +129,8 @@ def main(model_data):
             st.markdown("---")
             
             # Question 2 - Radio button
-            st.header('Q2: Please state your agreement with "Gene therapy should be 1st line treatment for my SMA patient" ')
-            st.markdown("Please select to what extent the HCP is confident in prescribing gene therapy for SMA patients for 1L treatment:")
+            st.header('Q2: Belief in Gene Therapy')
+            st.markdown('Please state your agreement with "Gene therapy should be 1st line treatment for my SMA patient"')
             
             input_data['Q2_0'] = [0]
             input_data['Q2_1'] = [0]
@@ -140,8 +147,8 @@ def main(model_data):
             st.markdown("---")
             
             # Question 3 - Radio button
-            st.header("Q3: What is the level of satisfaction you have with the Spinraza and Evrysdi for SMA patients > 2 years old")
-            st.markdown("Please select the extent of satisfaction the HCP has with the current standard of care therapies for SMA:")
+            st.header("Q3: Current S/E Satisfaction")
+            st.markdown("Please select the level of satisfaction you have with the Spinraza and Evrysdi for SMA patients > 2 years old")
             
             input_data['Q4_0'] = [0]
             input_data['Q4_1'] = [0]
@@ -158,8 +165,8 @@ def main(model_data):
             st.markdown("---")
             
             # Question 4 - Radio button
-            st.header("Q4: What are the key barriers in prescribing gene therapies in SMA")
-            st.markdown("Please select what are the key barriers for HCPs in prescribing gene therapies:")
+            st.header("Q4: Barriers in Prescribing Gene Therapy")
+            st.markdown(" Please select what are the key barriers in prescribing gene therapies in SMA")
             
             input_data['Q5_0'] = [0]
             input_data['Q5_1'] = [0]
@@ -183,7 +190,7 @@ def main(model_data):
             st.markdown("---")
             
             # Question 5 - Radio button
-            st.header("Q5: State your primary role while treating SMA patients with Gene Therapies:")
+            st.header("Q5: Experience with Gene Therapy")
             st.markdown("State your primary role while treating SMA patients with Gene Therapies:")
 
             input_data['Q7_0'] = [0]
@@ -212,7 +219,7 @@ def main(model_data):
 
         # Handle form submission
         if submit_button:
-            if not npi_id or not reps_name or q2_answer == None or q3_answer == None or q4_answer == None or q5_answer == None:
+            if not npi_id or not reps_first_name or q2_answer == None or q3_answer == None or q4_answer == None or q5_answer == None:
                 st.error("Please select an option for all questions before submitting.")
             else:
                 # Prepare the input data for prediction
@@ -274,7 +281,10 @@ def main(model_data):
                     with col1:
                         st.write("**Respondent Information**")
                         st.write(f"NPI ID: {npi_id}")
-                        st.write(f"HCP Name: {reps_name}")
+                        st.write(f"HCP First Name: {reps_first_name}")
+                        st.write(f"HCP Last Name: {reps_last_name}")
+                        st.write(f"HCP Practicing ID: {HCP_practicing_id}")
+                        st.write(f"HCP Practicing Site: {HCP_practicing_site}")
                         st.write(f"Date: {datetime.now().strftime('%B %d, %Y')}")
                     
                     with col2:
@@ -327,7 +337,9 @@ def main(model_data):
                     df = pd.DataFrame({
                         'Timestamp': [datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
                         'NPI_ID': [npi_id],
-                        'Reps_Name': [reps_name],
+                        'Reps_First_Name': [reps_first_name],
+                        'Reps_Last_Name': [reps_last_name],
+                        'HCP_Practicing_ID': [HCP_practicing_id],
                         'HCP_Practicing_Site': [HCP_practicing_site],
                         **response_dict,
                         'Prediction': [prediction_decoded],
