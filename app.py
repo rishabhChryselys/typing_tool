@@ -280,7 +280,7 @@ def main(model_data):
                         st.write("**Responses**")
                         selected_q1 = []
                         for key, value in input_data.items():
-                            print(key,value)
+                            # print(key,value)
                             if key == 'Q1_1' and value == [1]:
                                 selected_q1.append("Efficiency")
                             elif key == 'Q1_2' and value == [1]:
@@ -289,7 +289,7 @@ def main(model_data):
                                 selected_q1.append("MOA")
                             elif key == 'Q1_4' and value == [1]:
                                 selected_q1.append("Dosing")
-                        print(selected_q1)
+                        # print(selected_q1)
                         st.write(f"Q1: {', '.join(selected_q1)}")
                         st.write(f"Q2: {q2_answer}")
                         st.write(f"Q3: {q3_answer}")
