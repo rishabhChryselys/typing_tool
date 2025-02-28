@@ -9,6 +9,7 @@ Author: Satyam, Vishesh, Rishabh
 import streamlit as st
 import pickle
 import pandas as pd
+import numpy as np
 import os
 from datetime import datetime
 
@@ -301,10 +302,20 @@ def main(model_data):
                 try:
                     # Create response columns dynamically
                     response_dict = {}
+                    response_dict['Q1_1'] = np.nan
+                    response_dict['Q1_2'] = np.nan
+                    response_dict['Q1_3'] = np.nan
+                    response_dict['Q1_4'] = np.nan
+
                     for key, value in input_data.items():
-                        if key.startswith('Q1') and value == 1:
-                                response_dict['Q1'] = ["Efficacy" if key == 'Q1_1' else "Safety" if key == 'Q1_2' else "MOA" if key == 'Q1_3' else "Dosing"]
-                    response_dict['Q2'] = q2_answer
+                        if key == 'Q1_1' and value == [1]:
+                            response_dict['Q1_1'] = "Efficiency"
+                        elif key == 'Q1_2' and value == [1]:
+                            response_dict['Q1_2'] = "Safety"
+                        elif key == 'Q1_3' and value == [1]:
+                            response_dict['Q1_3'] = "MOA"
+                        elif key == 'Q1_4' and value == [1]:
+                            response_dict['Q1_4'] = "Dosing"
                     response_dict['Q3'] = q3_answer
                     response_dict['Q4'] = q4_answer
                     response_dict['Q5'] = q5_answer
