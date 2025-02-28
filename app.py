@@ -27,7 +27,8 @@ def show_welcome_screen():
     with welcome_container:
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            st.image("Gene Therapy.png", width=300)
+            # st.image("Gene Therapy.png", width=300)
+            st.image("https://cdn.capsulcn.com/Content/Images/uploaded/ZOLGENSMA_logo.png", width=200)
             st.title("Welcome to the Gene Therapy HCP Typing Tool")
             
             st.markdown("""
@@ -74,7 +75,8 @@ def main(model_data):
     else:
         # Sidebar for information
         with st.sidebar:
-            st.image("Gene Therapy.png", width=200)
+            st.image("https://cdn.capsulcn.com/Content/Images/uploaded/ZOLGENSMA_logo.png", width=150)
+            # st.image("Gene Therapy.png", width=200)
             st.markdown("### About This Survey")
             st.markdown("This tool collects data about gene therapy prescribing practices for SMA patients and provides insights into prescriber categorization.")
             
